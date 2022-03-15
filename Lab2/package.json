@@ -1,0 +1,15 @@
+{
+  "name": "lab2",
+  "version": "1.0.0",
+  "description": "Lab2 of WA1",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Giuseppe Mauro - 292870 - PoliTO",
+  "license": "ISC",
+  "dependencies": {
+    "dayjs": "^1.11.0",
+    "sqlite3": "^5.0.2"
+  }
+}
