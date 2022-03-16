@@ -17,6 +17,34 @@ function FilmLibrary(){
     this.films = [];
     this.addNewFilm = (film) => this.films.push(film);
 
+    this.addNewFilmToDB = (film) => {
+        return new Promise((resolve, reject) => {
+            const sql = "INSERT INTO films(id, title, favorite, watchdate, rating) VALUES(?,?,?,DATE(?),?)";
+            db.run(sql, [film.id, film.title, film.isFavourite, film.dateWatched?.format("YYYY-MM-DD"), film?.rating], (err) => {
+                if(err) reject(err);
+                resolve(this.lastID);
+            });
+        });
+    }
+
+    this.deleteFilmFromDB = (id) => {
+        return new Promise((resolve, reject) => {
+            db.run("DELETE FROM films WHERE id = ?", [id], (err) => {
+                if(err) reject(err);
+                resolve(this.lastID);
+            });
+        });
+    }
+
+    this.deleteAllWatchdateFromDB = () => {
+        return new Promise((resolve, reject) => {
+            db.run("UPDATE films SET watchdate = NULL", [], (err) => {
+                if(err) reject(err);
+                resolve(this.lastID);
+            });
+        });
+    }
+
     this.getAllFilmFromDB = () => {
         return new Promise((resolve, reject) => {
             db.all("SELECT * FROM films", [], (err, rows) => {
@@ -119,6 +147,22 @@ async function main(){
     console.log("--------Recupero Film title = 'Pulp fiction' today dal DB-------------");
     films = await filmLibrary.getFilmWithTitleFromDB("Pulp fiction");
     console.log(films);
+
+    console.log("--------Inserisco 2 film nel DB-------------");
+    const film1 = new Film(7,"The Office", true, dayjs("March 17, 2022"), 5);
+    const film2 = new Film(8,"Big bang theory");
+    await filmLibrary.addNewFilmToDB(film1);
+    await filmLibrary.addNewFilmToDB(film2);
+    console.log(await filmLibrary.getAllFilmFromDB());
+
+    console.log("--------Cancello Big Bang Theory dal DB-------------");
+    await filmLibrary.deleteFilmFromDB(film2.id);
+    console.log(await filmLibrary.getAllFilmFromDB());
+
+    //COMMENTED BECAUSE THIS WILL DELETE ALL WATCHDATE OF THE FILMS
+    //console.log("--------Cancello Tutte le watch date dal DB-------------");
+    //await filmLibrary.deleteAllWatchdateFromDB()
+    //console.log(await filmLibrary.getAllFilmFromDB());
 }
 
 main();
